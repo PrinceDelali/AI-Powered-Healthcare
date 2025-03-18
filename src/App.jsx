@@ -18,6 +18,8 @@ import UserProfile from './components/pages/UserProfile';
 import Dashboard from './components/pages/Dashboard';
 import NotFound from './components/pages/NotFound';
 import Loading from './components/pages/Loading';
+import ForgotPassword from './components/pages/ForgotPassword';
+
 
 const ProtectedRoute = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +62,7 @@ function App() {
         <Route element={<AuthLayout />}>
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="forgotpassword" element={<ForgotPassword />} />
           
         </Route>
       </Routes>

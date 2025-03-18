@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaGoogle, FaFacebook, FaGithub, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaGoogle, FaFacebook, FaGithub, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUser } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import Loading from './Loading'; // Import the Loading component
+import Loading from './Loading';
 
-const Register = () => {
+const SignUp = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -21,30 +23,49 @@ const Register = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-      const user = storedUsers.find((u) => u.email === email && u.password === password);
-
-      if (user) {
-        localStorage.setItem('user', JSON.stringify(user));
-        navigate('/dashboard');
-      } else {
-        setError('Invalid email or password');
+      
+      // Check if email or username already exists
+      if (storedUsers.some(u => u.email === email)) {
+        setError('Email already registered');
+        setLoading(false);
+        return;
       }
+      if (storedUsers.some(u => u.username === username)) {
+        setError('Username already taken');
+        setLoading(false);
+        return;
+      }
+
+      // Create new user
+      const newUser = {
+        firstName,
+        lastName,
+        username,
+        email,
+        password,
+        createdAt: new Date().toISOString()
+      };
+
+      // Add to local storage
+      storedUsers.push(newUser);
+      localStorage.setItem('users', JSON.stringify(storedUsers));
+      localStorage.setItem('user', JSON.stringify(newUser));
+      navigate('/dashboard');
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError('Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-tr from-emerald-50 to-teal-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex h-screen bg-gradient-to-tr from-emerald-50 to-teal-100 dark:from-gray-900 dark:to-gray-800">
       {loading ? (
-        <Loading /> // Conditionally render the Loading component
+        <Loading />
       ) : (
         <>
-          {/* Left Side - Branding */}
-          <div className="hidden lg:flex lg:w-1/2 bg-emerald-600 text-white flex-col justify-center items-center p-12 relative overflow-hidden shadow-xl rounded-r-xl">
-            {/* Enhanced background with animated gradient */}
+          {/* Left Side - Branding (hidden on mobile) */}
+          <div className="hidden md:flex md:w-1/2 lg:w-1/2 bg-emerald-600 text-white flex-col justify-center items-center p-4 md:p-8 lg:p-12 relative overflow-hidden shadow-xl rounded-r-xl">
             <motion.div 
               className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-700 opacity-90"
               animate={{ 
@@ -57,7 +78,6 @@ const Register = () => {
               transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
             />
             
-            {/* Animated circles in background */}
             <div className="absolute inset-0 overflow-hidden">
               {[...Array(5)].map((_, i) => (
                 <motion.div
@@ -83,7 +103,6 @@ const Register = () => {
               ))}
             </div>
 
-            {/* Abstract wave pattern overlay with animation */}
             <motion.div 
               className="absolute inset-0 opacity-20"
               animate={{ y: [0, 10, 0] }}
@@ -125,9 +144,8 @@ const Register = () => {
               </svg>
             </motion.div>
             
-            {/* Logo/icon - Plant/Growth instead of heart */}
             <motion.div 
-              className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-8 z-10 shadow-lg"
+              className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-white rounded-full flex items-center justify-center mb-6 md:mb-8 z-10 shadow-lg"
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ 
@@ -142,7 +160,7 @@ const Register = () => {
               }}
             >
               <motion.svg 
-                className="w-14 h-14 text-emerald-600" 
+                className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 text-emerald-600" 
                 fill="currentColor" 
                 viewBox="0 0 20 20"
                 initial={{ opacity: 0 }}
@@ -164,9 +182,8 @@ const Register = () => {
               </motion.svg>
             </motion.div>
             
-            {/* Content with improved typography and animations */}
             <motion.h1 
-              className="text-5xl font-extrabold mb-6 z-10 drop-shadow-lg tracking-tight"
+              className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 md:mb-6 z-10 drop-shadow-lg tracking-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.2 }}
@@ -176,35 +193,34 @@ const Register = () => {
                 animate={{ rotate: [0, 2, 0, -2, 0] }}
                 transition={{ duration: 1.5, delay: 2, repeat: Infinity, repeatDelay: 10 }}
               >
-                Get
+                Sign
               </motion.span>{" "}
               <motion.span
                 initial={{ display: "inline-block" }}
                 animate={{ rotate: [0, -2, 0, 2, 0] }}
                 transition={{ duration: 1.5, delay: 2.2, repeat: Infinity, repeatDelay: 10 }}
               >
-                Started
+                Up
               </motion.span>
             </motion.h1>
             
             <motion.p 
-              className="text-lg md:text-xl mb-8 text-emerald-50 max-w-md text-center z-10 leading-relaxed"
+              className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 text-emerald-50 max-w-md text-center z-10 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.5 }}
             >
-              Sign Up to access your personalized dashboard and continue your health journey.
+              Create an account to start your personalized health journey.
             </motion.p>
             
-            {/* Added inspirational quote with animation */}
             <motion.div 
-              className="mt-6 border-t border-emerald-400 pt-6 w-full max-w-md z-10 opacity-80"
+              className="mt-4 md:mt-6 border-t border-emerald-400 pt-4 md:pt-6 w-full max-w-md z-10 opacity-80"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.8 }}
             >
               <motion.p 
-                className="italic text-emerald-50 text-center"
+                className="italic text-emerald-50 text-center text-sm md:text-base"
                 animate={{ 
                   opacity: [0.7, 1, 0.7],
                   scale: [1, 1.02, 1]
@@ -215,11 +231,11 @@ const Register = () => {
               </motion.p>
             </motion.div>
             
-            {/* Floating particles animation */}
-            {[...Array(10)].map((_, i) => (
+            {/* Animated particles - reduced for mobile */}
+            {[...Array(6)].map((_, i) => (
               <motion.div
                 key={`particle-${i}`}
-                className="absolute w-2 h-2 rounded-full bg-white z-10"
+                className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-white z-10"
                 style={{ 
                   left: `${Math.random() * 100}%`, 
                   top: `${Math.random() * 100}%` 
@@ -240,11 +256,11 @@ const Register = () => {
             ))}
           </div>
 
-          {/* Right Side - Login Form */}
-          <div className="w-full lg:w-1/2 flex justify-center items-center p-6">
-            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-              <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white">Sign Up</h2>
-              <p className="text-gray-600 dark:text-gray-400 text-center mb-6">Access your dashboard</p>
+          {/* Right Side - Sign Up Form */}
+          <div className="w-full md:w-1/2 lg:w-1/2 flex justify-center items-center p-4 sm:p-6 overflow-y-auto">
+            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-white">Create Account</h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 text-center mb-4 sm:mb-6">Join us today</p>
 
               {error && (
                 <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400 rounded-md">
@@ -252,7 +268,67 @@ const Register = () => {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                {/* First Name and Last Name Inputs Side by Side */}
+                <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+                  {/* First Name Input */}
+                  <div className="relative flex-1">
+                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      First Name
+                    </label>
+                    <div className="relative">
+                      <FaUser className="absolute left-3 top-3.5 text-gray-400" />
+                      <input
+                        type="text"
+                        id="firstName"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        required
+                        placeholder="First name"
+                        className="w-full pl-10 p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Last Name Input */}
+                  <div className="relative flex-1">
+                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Last Name
+                    </label>
+                    <div className="relative">
+                      <FaUser className="absolute left-3 top-3.5 text-gray-400" />
+                      <input
+                        type="text"
+                        id="lastName"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        required
+                        placeholder="Last name"
+                        className="w-full pl-10 p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Username Input */}
+                <div className="relative">
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Username
+                  </label>
+                  <div className="relative">
+                    <FaUser className="absolute left-3 top-3.5 text-gray-400" />
+                    <input
+                      type="text"
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      placeholder="Your username"
+                      className="w-full pl-10 p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    />
+                  </div>
+                </div>
+
                 {/* Email Input */}
                 <div className="relative">
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -298,22 +374,6 @@ const Register = () => {
                   </div>
                 </div>
 
-                {/* Remember Me */}
-                <div className="flex justify-between items-center">
-                  <label className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="h-4 w-4 text-emerald-600 border-gray-300 rounded"
-                    />
-                    <span>Remember me</span>
-                  </label>
-                  <Link to="/forgot-password" className="text-sm text-emerald-600 hover:underline">
-                    Forgot password?
-                  </Link>
-                </div>
-
                 {/* Submit Button */}
                 <button
                   type="submit"
@@ -326,30 +386,30 @@ const Register = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Signing in...
+                      Creating Account...
                     </>
                   ) : (
-                    'Sign in'
+                    'Sign Up'
                   )}
                 </button>
               </form>
 
-              {/* Social Login */}
-              <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">Or sign in with</div>
-              <div className="mt-4 flex justify-center space-x-3">
-                <button className="p-3 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+              {/* Social Sign Up */}
+              <div className="mt-4 sm:mt-6 text-center text-sm text-gray-600 dark:text-gray-400">Or sign up with</div>
+              <div className="mt-3 sm:mt-4 flex justify-center space-x-3">
+                <button className="p-2 sm:p-3 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                   <FaGoogle className="text-red-500" />
                 </button>
-                <button className="p-3 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button className="p-2 sm:p-3 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                   <FaFacebook className="text-blue-600" />
                 </button>
-                <button className="p-3 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button className="p-2 sm:p-3 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                   <FaGithub className="text-gray-800" />
                 </button>
               </div>
 
-              <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account? <Link to="/register" className="text-emerald-600 hover:underline">Sign up</Link>
+              <p className="mt-4 sm:mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+                Already have an account? <Link to="/login" className="text-emerald-600 hover:underline">Sign in</Link>
               </p>
             </div>
           </div>
@@ -359,4 +419,4 @@ const Register = () => {
   );
 };
 
-export default Register
+export default SignUp;

@@ -309,7 +309,7 @@ const Login = () => {
                     />
                     <span>Remember me</span>
                   </label>
-                  <Link to="/forgot-password" className="text-sm text-emerald-600 hover:underline">
+                  <Link to="/forgotpassword" className="text-sm text-emerald-600 hover:underline">
                     Forgot password?
                   </Link>
                 </div>
