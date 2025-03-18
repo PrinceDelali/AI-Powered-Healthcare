@@ -16,4 +16,4 @@ AI: OpenAI API (for symptom-based health suggestions)
 Database: Firebase or MongoDB
 Video Calls: WebRTC or Twilio API
 Maps Integration: Google Maps API
-This platform will revolutionize healthcare accessibility in Ghana and beyond, ensuring that more people receive timely medical advice. :rocket:
+This platform will revolutionize healthcare accessibility in Ghana and beyond, ensuring that more people receive timely medical advice.
